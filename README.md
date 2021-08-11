@@ -7,7 +7,7 @@
    
    # ... Outline config (see the docs: https://github.com/outline/outline)
    ```
-   > The `OUTLINE_VERSION` value can be `latest` with you want to the latest version (not recomended).
+   > The value of `OUTLINE VERSION` can be `latest` if you want the latest version of the app (not recommended).
 1. Create an `acme.json` file:
    ```bash
    touch acme.json
