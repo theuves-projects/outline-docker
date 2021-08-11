@@ -13,7 +13,7 @@
    touch acme.json
    chmod 600 acme.json
    ```
-1. Run the Docker containers with [docker-compose](https://docs.docker.com/compose/):
+1. Run the Docker containers with [Docker Compose](https://docs.docker.com/compose/):
    ```bash
    docker-compose up -d
    ```
