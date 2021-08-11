@@ -1,0 +1,53 @@
+version: "3"
+
+services:
+  redis:
+    image: redis:alpine3.14
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - "6379"
+
+  outline:
+    image: outlinewiki/outline:0.58.1
+    container_name: outline
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "3000"
+    entrypoint: /bin/sh -c 'yarn db:migrate --env=production-ssl-disabled && yarn start'
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.outline.rule=Host(`${TRAEFIK_HOST}`)"
+      - "traefik.http.routers.outline.tls.certresolver=leresolver"
+      - "traefik.http.routers.outline.entrypoints=websecure"
+    depends_on:
+      - redis
+
+  traefik:
+    image: traefik:v2.2
+    container_name: traefik
+    restart: unless-stopped
+    command:
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --providers.docker=true
+      - --api
+      - --certificatesresolvers.leresolver.acme.storage=/acme.json
+      - --certificatesresolvers.leresolver.acme.tlschallenge=true
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./acme.json:/acme.json"
+    labels:
+      # global redirect to https
+      - "traefik.http.routers.http-catchall.rule=hostregexp(`{host:.+}`)"
+      - "traefik.http.routers.http-catchall.entrypoints=web"
+      - "traefik.http.routers.http-catchall.middlewares=redirect-to-https"
+      # middleware redirect
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+    depends_on:
+      - outline
