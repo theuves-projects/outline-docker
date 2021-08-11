@@ -9,7 +9,7 @@ services:
       - "6379"
 
   outline:
-    image: outlinewiki/outline:0.58.1
+    image: outlinewiki/outline:${OUTLINE_VERSION}
     container_name: outline
     restart: unless-stopped
     env_file:
@@ -19,7 +19,7 @@ services:
     entrypoint: /bin/sh -c 'yarn db:migrate --env=production-ssl-disabled && yarn start'
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.outline.rule=Host(`${TRAEFIK_HOST}`)"
+      - "traefik.http.routers.outline.rule=Host(`${OUTLINE_HOST}`)"
       - "traefik.http.routers.outline.tls.certresolver=leresolver"
       - "traefik.http.routers.outline.entrypoints=websecure"
     depends_on:
